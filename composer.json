@@ -1,5 +1,5 @@
 {
-    "name": "qota/CustomerOrderSearch",
+    "name": "qota/customer-order-search",
     "description": "Customer can search  orders in order history",
     "require": {
       "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0|~7.1.3|~7.2.0"
