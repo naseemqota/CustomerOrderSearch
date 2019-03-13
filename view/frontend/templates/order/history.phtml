@@ -5,6 +5,16 @@
 ?>
 <?php $_orders = $block->getOrders(); ?>
 <?= $block->getChildHtml('info') ?>
+<?php
+$post=$this->getRequest();
+if(isset($post)){
+$msg=/* @escapeNotVerified */ __('No Result Found. <a href="'.$this->getUrl('sales/order/history').'">Reset My Orders</a>');
+}else{
+    $msg=/* @escapeNotVerified */ __('You have placed no orders.');
+
+}
+?>
+
 <?php if ($_orders && count($_orders)): ?>
     <div class="table-wrapper orders-history">
         <table class="data table table-order-items history" id="my-orders-table">
@@ -68,7 +78,7 @@
         <div class="order-products-toolbar toolbar bottom"><?= $block->getPagerHtml() ?></div>
     <?php endif ?>
 <?php else: ?>
-    <div class="message info empty"><span><?= /* @escapeNotVerified */ __('You have placed no orders.') ?></span></div>
+    <div class="message info empty"><span><?= $msg ?></span></div>
 <?php endif ?>
 
 <script>
