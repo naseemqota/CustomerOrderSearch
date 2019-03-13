@@ -4,6 +4,7 @@ Customer can Search orders from his order history.
 
 
 # installation <br/>
+composer require qota/customer-order-search<br/>
 php bin/magento setup:upgrade --keep-generated <br/>
 php bin/magento setup:di:compile <br/>
 php bin/magento cache:flush <br/>
