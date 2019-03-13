@@ -3,7 +3,7 @@
 Customer can Search orders from his order history.
 
 
-# installation <br/>
+## installation <br/>
 composer require qota/customer-order-search<br/>
 php bin/magento setup:upgrade --keep-generated <br/>
 php bin/magento setup:di:compile <br/>
@@ -14,4 +14,10 @@ you will be able to filter order no's,Product Sku's and created date as Date Ran
 
 login as customer 
 Goto My orders.
+## Compatible
+Magento 2.x
+
+## Screenshot
+
+![image](https://user-images.githubusercontent.com/9654790/54287231-197de400-45c7-11e9-8eff-274fce33efb5.png)
 
