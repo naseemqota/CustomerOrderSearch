@@ -1,0 +1,14 @@
+
+
+.co-search{ width: 100%; box-sizing: border-box; }
+.account .co-search .data.table .col.actions { width: 120px; white-space: normal; box-sizing: border-box; text-align: right; }
+
+.account .co-search .data.table .col.total,
+.account .co-search .data.table .col.status { width: 100px; white-space: normal; box-sizing: border-box; text-align: right; }
+.account .co-search .data.table .col.shipping,
+.account .co-search .data.table .col.order{  width: 100px; white-space: normal; box-sizing: border-box;}
+.account .co-search .data.table .col.products{ width: 200px; white-space: normal; box-sizing: border-box; }
+.account .co-search .action button { padding: 3px 5px; font-size: 12px; min-width: 76px; margin-bottom: 5px; }
+.account .co-search .data.table .col.actions .action:after{ content: none; }
+.account .co-search .data.table .col.date .form-date{ float: left; width: 100px; }
+.account .co-search .data.table .col.date .to-date{ float: right; width: 100px; }

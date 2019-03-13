@@ -16,13 +16,13 @@ $msg=/* @escapeNotVerified */ __('No Result Found. <a href="'.$this->getUrl('sal
 ?>
 
 <?php if ($_orders && count($_orders)): ?>
-    <div class="table-wrapper orders-history">
+    <div class="table-wrapper orders-history co-search">
         <table class="data table table-order-items history" id="my-orders-table">
             <caption class="table-caption"><?= /* @escapeNotVerified */ __('Orders') ?></caption>
             <thead>
                 <tr>
-                    <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('Order #') ?></th>
-                    <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('products') ?></th>
+                    <th scope="col" class="col order"><?= /* @escapeNotVerified */ __('Order #') ?></th>
+                    <th scope="col" class="col product"><?= /* @escapeNotVerified */ __('products') ?></th>
                     <th scope="col" class="col date"><?= /* @escapeNotVerified */ __('Date') ?></th>
                     <?= /* @noEscape */ $block->getChildHtml('extra.column.header') ?>
                     <th scope="col" class="col shipping"><?= /* @escapeNotVerified */ __('Ship To') ?></th>
@@ -31,22 +31,30 @@ $msg=/* @escapeNotVerified */ __('No Result Found. <a href="'.$this->getUrl('sal
                     <th scope="col" class="col actions"><?= /* @escapeNotVerified */ __('Action') ?></th>
                 </tr>
                 <tr>
-                    <form method='get' ><th><input type="text" name="orderid" placeholder="Search Order No" value="<?= $this->getRequest()->getParam('orderid')?>" /></th>
+                    <form method='get' >
+                    <th scope="col" class="col order"><input type="text" name="orderid" placeholder="Search Order No" value="<?= $this->getRequest()->getParam('orderid')?>" />
+                    </th>
                     <th scope="col" class="col products"><input type="text" placeholder="Search SKU"  name="sku" value="<?= $this->getRequest()->getParam('sku')?>" /></th>
-                    <th scope="col" class="col date" id="calendar_inputField"><input type="text" placeholder="From" id="date-from" name="from_date" value="<?= $this->getRequest()->getParam('from_date')?>"/>
-                    <input type="text" id="date-to" name="to_date" placeholder="To" value="<?= $this->getRequest()->getParam('to_date')?>"/></th>
+                    <th scope="col" class="col date" id="calendar_inputField">
+                        <div class="form-date">
+                            <input type="text" placeholder="From" id="date-from" name="from_date" value="<?= $this->getRequest()->getParam('from_date')?>"/>
+                        </div>
+                        <div class="to-date">
+                            <input type="text" id="date-to" name="to_date" placeholder="To" value="<?= $this->getRequest()->getParam('to_date')?>"/>
+                        </div>
+                    </th>
                     <th scope="col" class="col shipping"><input type="text"  disabled /></th>
                     <th scope="col" class="col total"><input type="text" disabled/></th>
                     <th scope="col" class="col status"><input type="text" disabled /></th>
-                    <th scope="col" class="col actions"><input type="submit"  value="Filter" /></th>
+                    <th scope="col" class="col actions"><button type="submit" value="Filter">Filter</button></th>
                     </form>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($_orders as $_order): ?>
                     <tr>
-                        <td data-th="<?= $block->escapeHtml(__('Order #')) ?>" class="col id"><?= /* @escapeNotVerified */ $_order->getRealOrderId() ?></td>
-                        <td data-th="<?= $block->escapeHtml(__('Product Name')) ?>" class="col id"><?= /* @escapeNotVerified */ $block->getProductName($_order) ?></td>
+                        <td data-th="<?= $block->escapeHtml(__('Order #')) ?>" class="col order"><?= /* @escapeNotVerified */ $_order->getRealOrderId() ?></td>
+                        <td data-th="<?= $block->escapeHtml(__('Product Name')) ?>" class="col products"><?= /* @escapeNotVerified */ $block->getProductName($_order) ?></td>
                         <td data-th="<?= $block->escapeHtml(__('Date')) ?>" class="col date"><?= /* @escapeNotVerified */ $block->formatDate($_order->getCreatedAt()) ?></td>
                         <?php $extra = $block->getChildBlock('extra.container'); ?>
                         <?php if ($extra): ?>
@@ -58,14 +66,14 @@ $msg=/* @escapeNotVerified */ __('No Result Found. <a href="'.$this->getUrl('sal
                         <td data-th="<?= $block->escapeHtml(__('Status')) ?>" class="col status"><?= /* @escapeNotVerified */ $_order->getStatusLabel() ?></td>
                         <td data-th="<?= $block->escapeHtml(__('Actions')) ?>" class="col actions">
                             <a href="<?= /* @escapeNotVerified */ $block->getViewUrl($_order) ?>" class="action view">
-                                <span><?= /* @escapeNotVerified */ __('View Order') ?></span>
+                                <button><?= /* @escapeNotVerified */ __('View Order') ?></button>
                             </a>
                             <?php if ($this->helper('Magento\Sales\Helper\Reorder')->canReorder($_order->getEntityId())) : ?>
                                 <a href="#" data-post='<?php /* @escapeNotVerified */ echo
                                 $this->helper(\Magento\Framework\Data\Helper\PostHelper::class)
                                     ->getPostData($block->getReorderUrl($_order))
                                 ?>' class="action order">
-                                    <span><?= /* @escapeNotVerified */ __('Reorder') ?></span>
+                                    <button><?= /* @escapeNotVerified */ __('Reorder') ?></button>
                                 </a>
                             <?php endif ?>
                         </td>
