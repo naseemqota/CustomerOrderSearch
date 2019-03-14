@@ -1,6 +1,6 @@
 # CustomerOrderSearch
 
-Customer can Search orders from his order history.
+Magento 2 - Customer can Search orders from his order history.
 
 
 ## installation <br/>
