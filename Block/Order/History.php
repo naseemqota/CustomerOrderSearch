@@ -86,7 +86,7 @@ class History extends \Magento\Sales\Block\Order\History
                if(isset($post['from_date']) && ($post['to_date'])){
 
                     if(($post['from_date']!=null) && ($post['to_date']!=null)){
-                        $date=['from' =>date("Y-m-d h:i:s",strtotime( $post['from_date'].' 00:00:00')),'to'=>date("Y-m-d h:i:s",strtotime( $post['to_date'].' 23:59:59'))];
+                         $date=['from' =>date("Y-m-d H:i:s",strtotime( $post['from_date'].' 00:00:00')),'to'=>date("Y-m-d H:i:s",strtotime( $post['to_date'].' 24:00:00'))];
                     }else{
                         $date=['neq' =>''];
                     }
