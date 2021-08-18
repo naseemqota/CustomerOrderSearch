@@ -1,35 +1,37 @@
 {
-    "name": "qota/customer-order-search",
-    "description": "Magento 2 - Customer can search  orders in order history",
-    "keywords": [
-      "Magento",
-      "Magento 2",
-      "Magento 2 CustomerOrderSearch",
-      "Magento 2 CustomerOrderSearch free extension",
-      "Magento 2 free extension",
-      "CustomerOrderSearch",
-      "Customer Order Search"
-    ],
-    "type": "magento2-module",
-    "version": "1.0.2",
-    "license": [
-      "OSL-3.0",
-      "AFL-3.0"
+  "name": "qota/customer-order-search",
+  "description": "Magento 2 - Customer can search  orders in order history",
+  "require": {
+    "php": "~5.5|~5.6|~7.0|~7.1|~7.2|~7.3|~7.4"
+  },
+  "keywords": [
+    "Magento",
+    "Magento 2",
+    "Magento 2 CustomerOrderSearch",
+    "Magento 2 CustomerOrderSearch free extension",
+    "Magento 2 free extension",
+    "CustomerOrderSearch",
+    "Customer Order Search"
   ],
-    "authors": [
-      {
-        "name": "Qota",
-        "email": "qota.naseem@gmail.com",
-        "role": "Magento 2 Developer"
-      }
+  "type": "magento2-module",
+  "version": "1.0.2",
+  "license": [
+    "MIT"
+  ],
+  "authors": [
+    {
+      "name": "Qota",
+      "email": "qota.naseem@gmail.com",
+      "role": "Magento 2 Developer"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
     ],
-    "autoload": {
-      "files": [
-        "registration.php"
-      ],
-      "psr-4": {
-        "Qota\\CustomerOrderSearch\\": ""
-      }
+    "psr-4": {
+      "Qota\\CustomerOrderSearch\\": ""
     }
   }
-  
+}
+
