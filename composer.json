@@ -1,9 +1,6 @@
 {
     "name": "qota/customer-order-search",
     "description": "Magento 2 - Customer can search  orders in order history",
-    "require": {
-      "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0|~7.1.3|~7.2.0|~7.3.0|~7.4.0"
-    },
     "keywords": [
       "Magento",
       "Magento 2",
@@ -16,8 +13,9 @@
     "type": "magento2-module",
     "version": "1.0.2",
     "license": [
-      "MIT"
-    ],
+      "OSL-3.0",
+      "AFL-3.0"
+  ],
     "authors": [
       {
         "name": "Qota",
