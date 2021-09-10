@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-# @CopyRight 2019 Qota. 
+# @CopyRight 2019 Qota.
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/Module/etc/module.xsd">
     <module name="Qota_CustomerOrderSearch" setup_version="1.0.0">
