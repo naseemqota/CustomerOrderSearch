@@ -1,7 +1,6 @@
-<?php
-
+<?php  /** @var History $block */
+use Qota\CustomerOrderSearch\Block\Order\History;
 // @codingStandardsIgnoreFile
-
 ?>
 <?php $_orders = $block->getOrders(); ?>
 <?= $block->getChildHtml('info') ?>
@@ -12,7 +11,8 @@
             <thead>
                 <tr>
                     <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('Order #') ?></th>
-                    <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('products') ?></th>
+                    <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('products Name') ?></th>
+                    <th scope="col" class="col id"><?= /* @escapeNotVerified */ __('products Sku') ?></th>
                     <th scope="col" class="col date"><?= /* @escapeNotVerified */ __('Date') ?></th>
                     <?= /* @noEscape */ $block->getChildHtml('extra.column.header') ?>
                     <th scope="col" class="col shipping"><?= /* @escapeNotVerified */ __('Ship To') ?></th>
@@ -21,22 +21,47 @@
                     <th scope="col" class="col actions"><?= /* @escapeNotVerified */ __('Action') ?></th>
                 </tr>
                 <tr>
-                    <form method='get' ><th><input type="text" name="orderid" placeholder="Search Order No" value="<?= $this->getRequest()->getParam('orderid')?>" /></th>
-                    <th scope="col" class="col products"><input type="text" placeholder="Search SKU"  name="sku" value="<?= $this->getRequest()->getParam('sku')?>" /></th>
-                    <th scope="col" class="col date" id="calendar_inputField"><input type="text" placeholder="From" id="date-from" name="from_date" value="<?= $this->getRequest()->getParam('from_date')?>"/>
-                    <input type="text" id="date-to" name="to_date" placeholder="To" value="<?= $this->getRequest()->getParam('to_date')?>"/></th>
-                    <th scope="col" class="col shipping"><input type="text"  disabled /></th>
-                    <th scope="col" class="col total"><input type="text" disabled/></th>
-                    <th scope="col" class="col status"><input type="text" disabled /></th>
-                    <th scope="col" class="col actions"><input type="submit"  value="Filter" /></th>
+                    <form method='get' >
+                        <th>
+                            <input type="text" name="order_id" placeholder="Search Order No" value="<?= $this->getRequest()->getParam('order_id')?>" />
+                        </th>
+                        <th scope="col" class="col products-name">
+                            <input type="text" placeholder="Search Name"  name="name" disabled />
+                        </th>
+                        <th scope="col" class="col products-sku">
+                            <input type="text" placeholder="Search sku"  name="sku" value="<?= $this->getRequest()->getParam('sku')?>" />
+                        </th>
+                        <th scope="col" class="col date" id="calendar_inputField">
+                            <input type="text" placeholder="From" id="date-from" name="from_date" value="<?= $this->getRequest()->getParam('from_date')?>"/>
+                            <input type="text" id="date-to" name="to_date" placeholder="To" value="<?= $this->getRequest()->getParam('to_date')?>"/>
+                        </th>
+                        <th scope="col" class="col shipping">
+                            <input type="text"  disabled />
+                        </th>
+                        <th scope="col" class="col total">
+                            <input type="text" disabled/>
+                        </th>
+                        <th scope="col" class="col status">
+                            <input type="text" disabled />
+                        </th>
+                        <th scope="col" class="col actions">
+                            <input type="submit"  value="Filter" />
+                        </th>
                     </form>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($_orders as $_order): ?>
                     <tr>
-                        <td data-th="<?= $block->escapeHtml(__('Order #')) ?>" class="col id"><?= /* @escapeNotVerified */ $_order->getRealOrderId() ?></td>
-                        <td data-th="<?= $block->escapeHtml(__('Product Name')) ?>" class="col id"><?= /* @escapeNotVerified */ $block->getProductName($_order) ?></td>
+                        <td data-th="<?= $block->escapeHtml(__('Order #')) ?>" class="col_id">
+                            <?= /* @escapeNotVerified */ $_order->getRealOrderId() ?>
+                        </td>
+                        <td data-th="<?= $block->escapeHtml(__('Product Name')) ?>" class="col name">
+                            <?= /* @escapeNotVerified */ $block->getProductName($_order) ?>
+                        </td>
+                        <td data-th="<?= $block->escapeHtml(__('Product Sku')) ?>" class="col name">
+                            <?= /* @escapeNotVerified */ $block->getProductSku($_order) ?>
+                        </td>
                         <td data-th="<?= $block->escapeHtml(__('Date')) ?>" class="col date"><?= /* @escapeNotVerified */ $block->formatDate($_order->getCreatedAt()) ?></td>
                         <?php $extra = $block->getChildBlock('extra.container'); ?>
                         <?php if ($extra): ?>
@@ -72,18 +97,18 @@
 <?php endif ?>
 
 <script>
-        require([
-            "jquery",
-            "mage/calendar"
-        ], function ($) {
-            $("#calendar_inputField").dateRange({
-                buttonText: 'Select Date',
-        from: {
-            id: 'date-from'
-        },
-        to: {
-            id: 'date-to'
-        }
-            });
+    require([
+        "jquery",
+        "mage/calendar"
+    ], function ($) {
+        $("#calendar_inputField").dateRange({
+            buttonText: 'Select Date',
+            from: {
+                id: 'date-from'
+            },
+            to: {
+                id: 'date-to'
+            }
         });
+    });
 </script>

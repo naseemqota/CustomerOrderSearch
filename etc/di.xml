@@ -1,4 +1,12 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
-    <preference for="Magento\Sales\Block\Order\History" type="Qota\CustomerOrderSearch\Block\Order\History" />
+    <preference for="Magento\Sales\Block\Order\History" type="Qota\CustomerOrderSearch\Block\Order\History"/>
+    <type name="Qota\CustomerOrderSearch\Block\Order\History">
+        <arguments>
+            <argument name="specialFilter" xsi:type="array">
+                <item name="skuFilter" xsi:type="object">Qota\CustomerOrderSearch\Model\Filters\SkuFilter</item>
+                <item name="dateFilter" xsi:type="object">Qota\CustomerOrderSearch\Model\Filters\DateFilter</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
