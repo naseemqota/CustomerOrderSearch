@@ -9,46 +9,52 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order\Config;
 use Magento\Sales\Model\ResourceModel\Order\Collection;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Qota\CustomerOrderSearch\Api\FiltersInterface;
 
 /**
  * Sales order history block
  */
 class History extends \Magento\Sales\Block\Order\History
 {
-    protected $productRepository;
-    protected $_storeManager;
-    protected $_blockFactory;
-    protected $_escaper;
-    protected $orderCollectionFactory;
+    protected   $_storeManager;
+    protected   $_blockFactory;
+    protected   $_escape;
+    protected   $orderCollectionFactory;
+    /**
+     * @var FiltersInterface[]
+     */
+    private $specialFilter;
 
     /**
      * @param Context $context
      * @param CollectionFactory $orderCollectionFactory
      * @param Session $customerSession
      * @param Config $orderConfig
-     * @param ProductRepositoryInterfaceFactory $productRepository
      * @param StoreManagerInterface $storeManager
      * @param BlockFactory $blockFactory
-     * @param Escaper $_escaper
+     * @param Escaper $escape
+     * @param FiltersInterface[] $specialFilter
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        CollectionFactory $orderCollectionFactory,
-        Session $customerSession,
-        Config $orderConfig,
-	    ProductRepositoryInterfaceFactory $productRepository,
-	    StoreManagerInterface $storeManager,
-        BlockFactory $blockFactory,
-        Escaper $_escaper,
-        array $data = []
+        Context                           $context,
+        CollectionFactory                 $orderCollectionFactory,
+        Session                           $customerSession,
+        Config                            $orderConfig,
+        StoreManagerInterface             $storeManager,
+        BlockFactory                      $blockFactory,
+        Escaper                           $escape,
+        array                             $specialFilter = [],
+        array                             $data = []
     ) {
-	$this->productRepository = $productRepository;
-	$this->_storeManager = $storeManager;
- 	$this->_blockFactory = $blockFactory;
- 	$this->_escaper = $_escaper;
- 	$this->orderCollectionFactory = $orderCollectionFactory;
+        $this->_storeManager = $storeManager;
+        $this->_blockFactory = $blockFactory;
+        $this->_escape = $escape;
+        $this->specialFilter = $specialFilter;
+        $this->validate();
+        $this->orderCollectionFactory = $orderCollectionFactory;
 
         parent::__construct(
             $context,
@@ -58,36 +64,37 @@ class History extends \Magento\Sales\Block\Order\History
             $data
         );
     }
-    private function getOrderCollectionFactory()
+
+    /**
+     * @return CollectionFactory
+     */
+    private function getOrderCollectionFactory(): CollectionFactory
     {
-        if ($this->orderCollectionFactory === null) {
-            $this->orderCollectionFactory = ObjectManager::getInstance()
-                ->get(CollectionFactoryInterface::class);
-        }
         return $this->orderCollectionFactory;
     }
 
     /**
-     * @return bool|Collection
+     * @return Collection
      */
-    public function getOrderlist()
+    public function getOrderList(): Collection
     {
-        if (!($customerId = $this->_customerSession->getCustomerId()))
-        {
+        if (!($customerId = $this->_customerSession->getCustomerId())) {
             return false;
         }
-        if (!$this->orders)
-        {
-            $this->getOrderActive($customerId);
+        if (!$this->orders) {
+            return $this->getOrderActive($customerId);
+        } else {
+            return $this->getOrderFilterList($customerId);
         }
-        else
-        {
-            $this->getOrderFilterList($customerId);
-        }
+        return false;
     }
 
-    private function getOrderActive($customerId){
-
+    /**
+     * @param $customerId
+     * @return Collection
+     */
+    private function getOrderActive($customerId): Collection
+    {
         $this->orders = $this->getOrderCollectionFactory()
             ->create($customerId)
             ->addFieldToSelect('*');
@@ -102,72 +109,34 @@ class History extends \Magento\Sales\Block\Order\History
         return $this->orders;
     }
 
-    private function getOrderFilterList($customerId)
+    /**
+     * @param $customerId
+     * @return Collection
+     */
+    private function getOrderFilterList($customerId): Collection
     {
         $post = $this->getRequest()->getParams();
-        if (isset($post))
-        {
+        if (isset($post)) {
             $this->orders = $this->getOrderCollectionFactory()
                 ->create($customerId);
-            if (!empty($post['orderid']))
-            {
-                    $this->orders->addFieldToFilter(
-                        'increment_id',
-                        $post['orderid']
-                    );
+            if (!empty($post['order_id'])) {
+                $this->orders->addFieldToFilter(
+                    'increment_id',
+                    $post['order_id']
+                );
             }
 
             $this->orders->addFieldToSelect('*');
 
-            if (!empty($post['sku']))
-            {
-                $this->orders->join(
-                    ["soi" => "sales_order_item"],
-                'main_table.entity_id = soi.order_id 
-                AND 
-                soi.product_type in ("simple","downloadable")',
-                array('sku', 'name')
-                )->addFieldToSelect('*')
-                 ->addFieldToFilter( 'soi.sku', ['eq' => $post['sku']] );
-            }
-            else if (!empty($post['name']))
-            {
-                $this->orders->join(
-                    ["soi" => "sales_order_item"],
-                    'main_table.entity_id = soi.order_id 
-                    AND 
-                    soi.product_type in ("simple","downloadable")',
-                    array('sku', 'name'))
-                    ->addFieldToSelect('*')
-                    ->addFieldToFilter( 'soi.name', ['like' => '%' . $post['name'] . '%']);
+            foreach ($this->specialFilter as $filters) {
+                if ($filters->isFilterable($post)) {
+                    $this->orders = $filters->filter($this->orders, $post);
+                }
             }
 
-            if (!empty($post['from_date']) && !empty($post['to_date']))
-            {
-                $date = ['from' => date("Y-m-d H:i:s", strtotime( $post['from_date'] . ' 00:00:00')),
-                    'to' => date("Y-m-d H:i:s", strtotime( $post['to_date'] . ' 24:00:00')) ];
-                $this->orders->addFieldToFilter(
-                    'main_table.created_at',
-                    $date
-                );
-            }
-            else if (!empty($post['from_date']))
-            {
-                $this->orders->addFieldToFilter(
-                    'main_table.created_at',
-                    ['like' => date("Y-m-d ", strtotime($post['from_date'])) . '%']
-                );
-            }
-            else if (!empty($post['to_date']))
-            {
-                $this->orders->addFieldToFilter(
-                    'main_table.created_at',
-                    ['like' => date("Y-m-d", strtotime($post['to_date'])) . '%']
-                );
-            }
             $this->orders->addFieldToFilter(
-            'status',
-            ['in' => $this->_orderConfig->getVisibleOnFrontStatuses()]
+                'status',
+                ['in' => $this->_orderConfig->getVisibleOnFrontStatuses()]
             )->setOrder(
                 'created_at',
                 'desc'
@@ -178,63 +147,79 @@ class History extends \Magento\Sales\Block\Order\History
 
     /**
      * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
-        if ($this->getOrderlist())
-        {
+        if ($this->getOrderList()) {
             $pager = $this->getLayout()->createBlock(
                 \Magento\Theme\Block\Html\Pager::class,
                 'sales.order.history.pagersearch'
             )->setCollection(
-                $this->getOrderlist()
+                $this->getOrderList()
             );
             $this->setChild('pager', $pager);
-            $this->getOrderlist()->load();
+            $this->getOrderList()->load();
         }
         return $this;
     }
 
+    /**
+     * @param $order
+     * @return string|void
+     */
     public function getProductName($order)
     {
         $items = $order->getAllItems();
-        if ($items)
-        {
+        if ($items) {
             $total_qty = [];
-            foreach($items as $itemId => $_item){
+            foreach ($items as $itemId => $_item) {
                 $total_qty[][$itemId] = $_item->getName();
             }
-            $c = 0;
+            $count = 0;
             $html = "<p>";
-            foreach($total_qty as $itm)
-            {
-                $html .= ($c + 1) . ' ) ' . $itm[$c] . ' <br/>';
-                $c++;
+            foreach ($total_qty as $item) {
+                $html .= $item[$count] . ' <br/>';
+                $count++;
             }
             $html .= "</p>";
             return $html;
         }
     }
 
+    /**
+     * @param $order
+     * @return string|void
+     */
     public function getProductSku($order)
     {
         $items = $order->getAllItems();
         if ($items) {
             $total_qty = [];
-            foreach($items as $itemId => $_item)
-            {
-                $total_qty[][$itemId] = $_item->getSku();
+            foreach ($items as $itemId => $item) {
+                $total_qty[][$itemId] = $item->getSku();
             }
-            $c = 0;
+            $count = 0;
             $html = "<p>";
-                foreach ($total_qty as $itm)
-                {
-                    $html .= ($c + 1) . ' ) ' . $itm[$c] . ' <br/>';
-                    $c++;
-                }
+            foreach ($total_qty as $item) {
+                $html .= ($count + 1) . ' ) ' . $item[$count] . ' <br/>';
+                $count++;
+            }
             $html .= "</p>";
             return $html;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function validate(): void
+    {
+        foreach ($this->specialFilter as $specialFilter) {
+            if (!$specialFilter instanceof FiltersInterface) {
+                throw new InvalidArgumentException('Invalid object type.');
+            }
         }
     }
 }
