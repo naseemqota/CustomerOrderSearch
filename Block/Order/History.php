@@ -9,7 +9,6 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order\Config;
 use Magento\Sales\Model\ResourceModel\Order\Collection;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
-use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Qota\CustomerOrderSearch\Api\FiltersInterface;
 
@@ -18,10 +17,10 @@ use Qota\CustomerOrderSearch\Api\FiltersInterface;
  */
 class History extends \Magento\Sales\Block\Order\History
 {
-    protected   $_storeManager;
-    protected   $_blockFactory;
-    protected   $_escape;
-    protected   $orderCollectionFactory;
+    protected $_storeManager;
+    protected $_blockFactory;
+    protected $_escape;
+    protected $orderCollectionFactory;
     /**
      * @var FiltersInterface[]
      */
