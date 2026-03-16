@@ -2,7 +2,7 @@
 use Qota\CustomerOrderSearch\Block\Order\History;
 // @codingStandardsIgnoreFile
 ?>
-<?php $_orders = $block->getOrders(); ?>
+<?php $_orders = $block->getOrderList(); ?>
 <?= $block->getChildHtml('info') ?>
 <?php if ($_orders && count($_orders)): ?>
     <div class="table-wrapper orders-history">
