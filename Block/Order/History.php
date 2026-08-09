@@ -26,6 +26,8 @@ class History extends \Magento\Sales\Block\Order\History
      */
     private $specialFilter;
 
+    private ?Collection $orderListCache = null;
+
     /**
      * @param Context $context
      * @param CollectionFactory $orderCollectionFactory
@@ -77,15 +79,28 @@ class History extends \Magento\Sales\Block\Order\History
      */
     public function getOrderList(): Collection
     {
+        if ($this->orderListCache !== null) {
+            return $this->orderListCache;
+        }
         if (!($customerId = $this->_customerSession->getCustomerId())) {
-            return false;
+            $this->orderListCache = $this->getOrderCollectionFactory()->create();
+            return $this->orderListCache;
         }
-        if (!$this->orders) {
-            return $this->getOrderActive($customerId);
-        } else {
-            return $this->getOrderFilterList($customerId);
+        $post = $this->getRequest()->getParams();
+        $hasFilters = !empty($post['order_id']) || !empty($post['sku'])
+            || !empty($post['from_date']) || !empty($post['to_date']);
+        if (!$hasFilters) {
+            foreach ($this->specialFilter as $filter) {
+                if ($filter->isFilterable($post)) {
+                    $hasFilters = true;
+                    break;
+                }
+            }
         }
-        return false;
+        $this->orderListCache = $hasFilters
+            ? $this->getOrderFilterList($customerId, $post)
+            : $this->getOrderActive($customerId);
+        return $this->orderListCache;
     }
 
     /**
@@ -110,38 +125,26 @@ class History extends \Magento\Sales\Block\Order\History
 
     /**
      * @param $customerId
+     * @param array $post
      * @return Collection
      */
-    private function getOrderFilterList($customerId): Collection
+    private function getOrderFilterList($customerId, array $post): Collection
     {
-        $post = $this->getRequest()->getParams();
-        if (isset($post)) {
-            $this->orders = $this->getOrderCollectionFactory()
-                ->create($customerId);
-            if (!empty($post['order_id'])) {
-                $this->orders->addFieldToFilter(
-                    'increment_id',
-                    $post['order_id']
-                );
-            }
-
-            $this->orders->addFieldToSelect('*');
-
-            foreach ($this->specialFilter as $filters) {
-                if ($filters->isFilterable($post)) {
-                    $this->orders = $filters->filter($this->orders, $post);
-                }
-            }
-
-            $this->orders->addFieldToFilter(
-                'status',
-                ['in' => $this->_orderConfig->getVisibleOnFrontStatuses()]
-            )->setOrder(
-                'created_at',
-                'desc'
-            );
+        $collection = $this->getOrderCollectionFactory()->create($customerId);
+        if (!empty($post['order_id'])) {
+            $collection->addFieldToFilter('increment_id', $post['order_id']);
         }
-        return $this->orders;
+        $collection->addFieldToSelect('*');
+        foreach ($this->specialFilter as $filters) {
+            if ($filters->isFilterable($post)) {
+                $collection = $filters->filter($collection, $post);
+            }
+        }
+        $collection->addFieldToFilter(
+            'status',
+            ['in' => $this->_orderConfig->getVisibleOnFrontStatuses()]
+        )->setOrder('created_at', 'desc');
+        return $collection;
     }
 
     /**
@@ -159,7 +162,6 @@ class History extends \Magento\Sales\Block\Order\History
                 $this->getOrderList()
             );
             $this->setChild('pager', $pager);
-            $this->getOrderList()->load();
         }
         return $this;
     }
